@@ -34,6 +34,9 @@ jobs:
           INSTANCE_NAME="development-instance-PR-${{ github.event.inputs.PR_number }}"
           sed -i "s/Name = \"development-instance\"/Name = \"$INSTANCE_NAME\"/g" main.tf
 
+          RESOURCE_NAME="development-instance-PR-${{ github.event.inputs.PR_number }}"
+          sed -i "s/resource "aws_instance" \"development-instance\"/Name = \"$RESOURCE_NAME\"/g" main.tf
+
       - name: Initialize Terraform
         run: terraform init
 
