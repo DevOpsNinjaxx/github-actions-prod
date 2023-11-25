@@ -67,9 +67,6 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text >> ./inventory
           cat  ./ansible/inventory
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \                      
-            --output text >> ./ansible/inventory
-          cat  inventory
 
       - name: Cache Ansible inventory
         uses: actions/cache@v2
