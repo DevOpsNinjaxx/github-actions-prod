@@ -65,9 +65,9 @@ jobs:
           # Fetch the public IP address of the EC2 instance based on its tag name with PR number
           aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=development-instance-PR-${{ github.event.inputs.PR_number }}" \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \                      
-            --output text >> ./ansible/inventory
-          cat  inventory
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text >> ./inventory
+          cat  ./ansible/inventory
 
       - name: Cache Ansible inventory
         uses: actions/cache@v2
