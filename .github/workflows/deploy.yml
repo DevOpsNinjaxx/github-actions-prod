@@ -36,7 +36,6 @@ jobs:
 
           RESOURCE_NAME="development-instance-PR-${{ github.event.inputs.PR_number }}"
           sed -i "s/resource "aws_instance" \"development-instance\"/Name = \"$RESOURCE_NAME\"/g" main.tf
-          
       - name: Initialize Terraform
         run: terraform init
 
@@ -65,6 +64,9 @@ jobs:
           # Fetch the public IP address of the EC2 instance based on its tag name with PR number
           aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=development-instance-PR-${{ github.event.inputs.PR_number }}" \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text >> ./inventory
+          cat  ./ansible/inventory
             --query 'Reservations[*].Instances[*].PublicIpAddress' \                      
             --output text >> ./ansible/inventory
           cat  inventory
@@ -80,7 +82,6 @@ jobs:
         with:
           name: configurations
           path: ./ansible/inventory
-
 
 #  setup_ansible:
 #    runs-on: ubuntu-latest
