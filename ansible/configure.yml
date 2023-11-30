@@ -31,10 +31,21 @@
     #  register: pm2_status
     #  ignore_errors: yes
     #
+    - name: Check if PM2 process is running
+      become: true
+      ansible.builtin.shell: "pm2 status app"
+      register: pm2_status
+      ignore_errors: true
+
     - name: Start Express.js app with PM2 if not already running
       become: true
       ansible.builtin.command: "pm2 start /home/ubuntu/app/index.js --name app"
-      ignore_errors: yes
+      when: pm2_status.rc != 0  # Execute only if PM2 status command returns non-zero exit code (indicating the process is not running)
+
+    - name: Restart Express.js app with PM2 if already running
+      become: true
+      ansible.builtin.command: "pm2 restart app"
+      when: pm2_status.rc == 0  # Execute only if PM2 status command returns zero exit code (indicating the process is already running)
 
     - name: Check if NGINX default virtual host exists
       become: yes
@@ -44,7 +55,6 @@
 
     - name: Disable NGINX Default Virtual Host if it exists
       become: yes
-      when: nginx_default_host.stat.exists
       command:
         cmd: unlink /etc/nginx/sites-enabled/default
       ignore_errors: yes
