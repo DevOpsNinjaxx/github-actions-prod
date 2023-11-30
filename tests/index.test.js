@@ -4,9 +4,9 @@ const request = require('supertest');
 const app = require('../index'); // Assuming your Express app logic is in index.js
 
 describe('GET /', () => {
-  it('responds with "Hello World! FROM GITHUB ACTION!! Making a minor change"', async () => {
+  it('responds with "Hello World! making a small test"', async () => {
     const response = await request(app).get('/');
     expect(response.status).toBe(200);
-    expect(response.text).toBe('Hello World! FROM GITHUB ACTION!! Making a minor change');
+    expect(response.text).toBe('Hello World! making a small test');
   });
 });
