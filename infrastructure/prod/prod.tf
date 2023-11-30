@@ -39,7 +39,7 @@ resource "aws_instance" "prod-instance" {
 }
 
 resource "aws_security_group" "prod-instance_security_group" {
-  name        = "development-instance-security-group"
+  name        = "prod-instance_security_group"
   description = "Allow inbound traffic on ports 80 (HTTP) and 22 (SSH)"
 
   ingress {
