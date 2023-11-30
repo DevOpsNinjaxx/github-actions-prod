@@ -44,6 +44,7 @@
 
     - name: Disable NGINX Default Virtual Host if it exists
       become: yes
+      when: nginx_default_host.stat.exists
       command:
         cmd: unlink /etc/nginx/sites-enabled/default
       ignore_errors: yes
