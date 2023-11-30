@@ -1,0 +1,89 @@
+---
+- name: Install PM2 and Configure Nginx Reverse Proxy
+  hosts: web
+  remote_user: ubuntu
+  become: true
+
+  tasks:
+
+    - name: Install nodejs and npm
+      become: yes
+      apt:
+        pkg:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Install PM2 globally
+      become: true
+      ansible.builtin.npm:
+        name: pm2
+        global: yes
+
+    - name: Install dependencies
+      shell: |
+        cd /home/ubuntu/app
+        npm install
+
+    #- name: Check if PM2 is running
+    #  become: true
+    #  ansible.builtin.shell: "pm2 status app"
+    #  register: pm2_status
+    #  ignore_errors: yes
+    #
+    - name: Start Express.js app with PM2 if not already running
+      become: true
+      ansible.builtin.command: "pm2 start /home/ubuntu/app/index.js --name app"
+      ignore_errors: yes
+
+    - name: Check if NGINX default virtual host exists
+      become: yes
+      ansible.builtin.stat:
+        path: /etc/nginx/sites-enabled/default
+      register: nginx_default_host
+
+    - name: Disable NGINX Default Virtual Host if it exists
+      become: yes
+      when: nginx_default_host.stat.exists
+      command:
+        cmd: unlink /etc/nginx/sites-enabled/default
+      ignore_errors: yes
+
+    - name: Create NGINX Conf File For Express app
+      become: yes
+      file:
+        path: /etc/nginx/sites-available/default.conf
+        state: touch
+
+    - name: Amend NGINX Conf File
+      become: yes
+      blockinfile:
+          path: /etc/nginx/sites-available/default.conf
+          marker: ""
+          block: |
+            server {
+                listen 80;
+                location / {
+                    proxy_pass http://localhost:3000;
+                    proxy_set_header Authorization "";
+                    proxy_read_timeout 90s;
+                }
+            }
+
+    - name: Check if NGINX Reverse Proxy link already exists
+      stat:
+        path: /etc/nginx/sites-enabled/default.conf
+      register: nginx_link_exists
+
+    - name: Link NGINX Reverse Proxy
+      become: yes
+      command: ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
+      when: not nginx_link_exists.stat.exists
+      notify: Restart Nginx
+
+
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
