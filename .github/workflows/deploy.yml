@@ -86,6 +86,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: 'refs/pull/${{ github.event.inputs.PR_number }}/head'
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
