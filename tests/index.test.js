@@ -4,9 +4,9 @@ const request = require('supertest');
 const app = require('../index'); // Assuming your Express app logic is in index.js
 
 describe('GET /', () => {
-  it('responds with "PR TEST"', async () => {
+  it('responds with "PR TEST 1"', async () => {
     const response = await request(app).get('/');
     expect(response.status).toBe(200);
-    expect(response.text).toBe('PR TEST');
+    expect(response.text).toBe('PR TEST 1');
   });
 });
